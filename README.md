@@ -29,3 +29,5 @@ The project is split into 3 section:
 3.2) If the key Alice has does not match with Bob, a prompt will appear in Bob's Serial Monitor to rebuild the key.
 
 (Note: It is advisable to restart the whole process starting from polariser alignment. This is due to the difference in ambient light at different period of time. Ambient light can affect the light intensity reading when building the key). 
+### Step 7:
+Enjoy sending message over to each other! :)
