@@ -17,4 +17,14 @@ Connect the Arduino Mega to a computer, 1 Arduino Mega is to be connected to a c
 ### Step 4:
 Align the laser on Alice to the OPT101 on Bob. If Eve is connected, align the laser on Alice to the OPT101 on Eve and align the laser on Eve to the OPT101 on Bob. The focused laser should be fully within the black portion of OPT101 sensor.
 ### Step 5:
-Open the Arduino IDE on each computer controlling, Alice, Bob and Eve. 
+Open Arduino IDE on each computer controlling, Alice, Bob and Eve. To run the program, open Serial Monitor in the following order.
+1) Alice or Eve
+2) Bob
+Bob's module is programmed to initiate the alignment of linear polariser thus it has to be reset last. (Opening Serial Monitor restarts the Arduino). The Serial Monitor button is a magnifying glass like button at the top right of the Arduino IDE.
+### Step 6:
+The project is split into 3 section:
+1) Align Polariser
+2) Bob initiate sending of encryption key 
+3.1) If the key Alice has matches with Bob, Alice and Bob will proceed to send message to one another.
+3.2) If the key Alice has does not match with Bob, a prompt will appear in Bob's Serial Monitor to rebuild the key.
+(Note: It is advisable to restart the whole process starting from polariser alignment. This is due to the difference in ambient light at different period of time. Ambient light can affect the light intensity reading when building the key). 
