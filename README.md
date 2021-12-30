@@ -1,7 +1,7 @@
 # Quantum Cryptography
 As networking technology advances, there has been an upsurge in demand for secure communication channels. Many important data have been transmitted across the network, and they must be encrypted to safeguard it. **Quantum Cryptography** is one of the techniques used to ensure that all of our communication channels are protected. This project uses the BB84 protocol to mimic Quantum Cryptography with an 8-bit encryption key.
 
-<img src="https://github.com/SorinoSSK/Quantum-Cryptography-Teaching-Kit-SUTD-/blob/main/CAD%20files/Full%20Setup%20v60.png" width="1050" height="350" />
+<img src="https://github.com/SorinoSSK/Quantum-Cryptography-Teaching-Kit-SUTD-/blob/main/CAD%20files/Full%20Setup%20v60.png" width="800" height="350" />
 
 ## Requirements notes
 ### Software
