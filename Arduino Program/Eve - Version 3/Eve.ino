@@ -98,9 +98,15 @@ void setup()
     BiasStepperB.attach(MotorB);
     BiasStepperB.write(0);
     randomSeed(getRandomSeed());
+    if (Printing){
+      Serial.println("Debugging mode is enabled");
+    }
+    else {
+      Serial.println("Debugging mode is disabled");
+    }
     pinMode(Laser, OUTPUT);
     digitalWrite(Laser, HIGH);
-    Serial.println("System initialised.");
+    Serial.println("System initialised. Listening to Classical Channel.");
     myReceiver.enableIRIn();
     
 }
@@ -124,6 +130,8 @@ void loop(){
                 break;
             case 691140:                                    //Checking with polarisation state 0
                 taskTracker = 0;                            //Ready task 0 after 500 ms
+                Serial.println("Alice indicated laser is ready. Begin intensity caliberation.");
+                Serial.println("-----------------------------");
                 msTask = 100;
                 RecordTaskTimer();
                 angle = 0;
@@ -136,11 +144,12 @@ void loop(){
                 angle = 0;
                 break;
             case 691144:                                    //Begin Quantum channel
+                Serial.println("-----------------------------");
+                Serial.println("Quantum Channel");
                 taskTracker = 3;                            
                 msTask = 50;
                 RecordTaskTimer();
                 index = 0;
-                Serial.println("Quantum Channel");
                 break;
             case 691146:                                    //Matched Key
                 Serial.print("It is a match. They don't know. Cipher Key: ");
@@ -210,7 +219,6 @@ void loop(){
     {
         if (taskTracker == 0)                                             //Task 0 is to search for highest value with respect to state 0
         {
-            Serial.println("Laser is ready, begin checking for polarisation.");
             SearchHigh(0, angle);
             angle++;
             if (angle == 180){
@@ -240,8 +248,25 @@ void loop(){
             long tempVal = 0;
             for (int i = 0; i<8;i++)
                 tempVal = tempVal*10 + (Data[i]+1);
-            Serial.print("Validation: ");
-            Serial.println(tempVal);
+            String Validation = "";
+            for (int i = 0; i<8;i++)
+                Validation += String(Data[i]);
+            Serial.println("-----------------------------");
+            Serial.print("Validation Key: ");
+            if (Printing){
+              Serial.println(tempVal);
+            }
+            else {
+              Serial.println(Validation);
+            }
+
+            String Encryption = "";
+            for (int i = 8; i<16;i++)
+                Encryption += String(Data[i]);
+            
+            Serial.print("Encryption Key: ");
+            Serial.println(Encryption);
+            Serial.println("-----------------------------");
             taskTracker = -1;
         }
         RecordTaskTimer();
@@ -259,26 +284,44 @@ void SearchHigh(int x, int a){                                            //Func
     }
     if (angle == 179){
         BiasStepperA.write(BiasesPos[x]);
-        Serial.print("Highest Value: ");
+        Serial.print("Peak laser intensity: ");
         Serial.print(BiasesVal[x]);
-        Serial.print(", Postion: ");
+        Serial.print(", Stepper angle: ");
         Serial.println(BiasesPos[x]);
         if (BiasesPos[x] <= 90)      BiasesPos[x+1] = BiasesPos[x] + 90;
         else if(BiasesPos[x] >= 90)  BiasesPos[x+1] = BiasesPos[x] - 90;
+        Serial.println("");
     }
 }
 
 void Polarisation(int i)                                            //Function to display polarisation
 {
     Serial.print("Position: ");
-    Serial.println(i);
+    if (Printing){
+      Serial.println(i);
+    }
+    else {
+      if (i == 0){
+        Serial.println("|V〉");
+      }
+      else if (i == 1){
+        Serial.println("|H〉");
+      }
+      else if (i == 2){
+        Serial.println("|-〉");
+      }
+      else if (i == 3){
+        Serial.println("|+〉");
+      }
+    }
     BiasStepperA.write(BiasesPos[i]);
     delay(300);
     BiasesVal[i] = analogRead(Sense);
     Serial.print("Laser intensity ");
     Serial.print(BiasesVal[i]);
-    Serial.print(", at step ");
+    Serial.print(", stepper angle ");
     Serial.println(BiasesPos[i]);
+    Serial.println("");
     index++;
     if (i == 1)
     {
@@ -289,7 +332,8 @@ void Polarisation(int i)                                            //Function t
       taskTracker = -1;
       Serial.print("Average intensity value: ");
       Serial.println(cut);
-      Serial.println("Search Complete. System ready to go.");
+      Serial.println("-----------------------------");
+      Serial.println("Intensity caliberation completed. Waiting for them to begin quantum channel.");
       index = 0;
     }
 }
@@ -300,29 +344,68 @@ void CaptureData(int choice)                                              //Func
     BiasStepperA.write(Basis); //set servo to that angle
     delay(200);
     Data[index] = analogRead(Sense);
-    Serial.print("State: ");
-    Serial.print(choice);
-    Serial.print(" Value: ");
-    Serial.print(Data[index]);
+    Serial.print("⟹ State: ");
+    if (Printing){
+      Serial.print(choice);
+      Serial.print(" Value: ");
+      Serial.print(Data[index]);
+    }
+    else {
+      if (choice == 0){
+        Serial.print("|V〉");
+      }
+      else if (choice == 1){
+        Serial.print("|H〉");
+      }
+      else if (choice == 2){
+        Serial.print("|-〉");
+      }
+      else if (choice == 3){
+        Serial.print("|+〉");
+      }
+    }
+    
     if ((Data[index]-cut)<0){
+      //Measured low
         if (choice == 0 || choice == 2){
             Data[index] = 0;
-            Basis = new_choice(choice);
         }
         else {
             Data[index] = 1;
         }
+        choice = new_choice(choice);
     }
     else{
+      // Measured high
         if (choice == 0 || choice == 2)
             Data[index] = 1;
         else
             Data[index] = 0;
-            Basis = new_choice(choice);
     }
-    BiasStepperB.write(BiasesPosA[Basis]);
     Serial.print(" Bit decision: ");
-    Serial.println(Data[index]);
+    Serial.print(Data[index]);
+
+    Serial.print(" Predicted state: ");
+    if (Printing){
+      Serial.println(choice);
+    }
+    else {
+      if (choice == 0){
+        Serial.println("|V〉");
+      }
+      else if (choice == 1){
+        Serial.println("|H〉");
+      }
+      else if (choice == 2){
+        Serial.println("|-〉");
+      }
+      else if (choice == 3){
+        Serial.println("|+〉");
+      }
+    }
+    
+    BiasStepperB.write(BiasesPosA[choice]);
+    
     int holder;
     if (choice <2)
         holder = 1;
@@ -340,7 +423,7 @@ int new_choice(int x){
 
 void DisplayCurrentKey()                                                  //Function to display current key
 {
-    Serial.print("Current Key: ");
+    Serial.print("Agreed Key: ");
     for (int i = 0; i<=index; i++)
         Serial.print(Data[i]);
     Serial.println("");
