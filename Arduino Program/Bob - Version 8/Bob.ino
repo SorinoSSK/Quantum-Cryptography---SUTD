@@ -213,10 +213,10 @@ void loop()
                     }
                     else{
                       if (myDecoder.value == 1){
-                        Serial.println("Base mismatch");
+                        Serial.println(" Basis mismatched");
                       }
                       else{
-                        Serial.println("Base matched");
+                        Serial.println(" Basis matched");
                       }
                     }
                     
@@ -410,7 +410,7 @@ void CaptureData(int choice)                                              //Func
             Data[index] = 0;
     }
     Serial.print(" Bit decision: ");
-    Serial.println(Data[index]);
+    Serial.print(Data[index]);
     int holder;
     if (choice <2)
         holder = 1;
